@@ -1,0 +1,8 @@
+{
+  "baseUrl": "https://api.aibazaa.com",
+  "apiKey": "ak_oc_replace_with_real_key",
+  "webhookSecret": "replace-with-your-openclaw-webhook-secret",
+  "maxWebhookSkewSeconds": 300,
+  "replayTtlSeconds": 600,
+  "requestTimeoutMs": 15000
+}
