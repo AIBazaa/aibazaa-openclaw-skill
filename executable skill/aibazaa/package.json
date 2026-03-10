@@ -1,0 +1,23 @@
+{
+  "name": "@aibazaa/openclaw-skill",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AIBazaa OpenClaw skill package",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "tsx --test scripts/*.test.ts",
+    "build": "tsc -p tsconfig.json",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "e2e:local": "tsx scripts/e2e-local.ts",
+    "package:clawhub": "tsx scripts/package-skill.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "prettier": "^3.5.3",
+    "tsx": "^4.20.5",
+    "typescript": "^5.8.2"
+  }
+}
