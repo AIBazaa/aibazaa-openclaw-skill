@@ -18,17 +18,28 @@ This repository should contain both:
 
 ## 1) Install the Skill in OpenClaw
 
-Clone or download this repository, then copy the full executable skill folder into OpenClaw.
+Clone or download this repository. You can install the skill in two ways.
 
 Download options:
 
 - Git: `git clone https://github.com/<your-org>/aibazaa-openclaw-skill.git`
 - GitHub UI: `Code` -> `Download ZIP`
 
+### Option A: SKILL.md only (markdown-skill runtime)
+
+Copy top-level `SKILL.md` from this repo to:
+
+- Linux/macOS: `~/.openclaw/workspace/skills/aibazaa/SKILL.md`
+- Windows (PowerShell): `$HOME\\.openclaw\\workspace\\skills\\aibazaa\\SKILL.md`
+
+Use this when your OpenClaw runtime executes tools directly from the markdown skill contract.
+
+### Option B: Full executable skill package
+
 Copy folder:
 
 - source: `aibazaa/`
-- destination folder name: `aibazaa`
+- destination: `.../skills/aibazaa`
 
 Recommended folder:
 
@@ -44,6 +55,8 @@ Set these values in your OpenClaw runtime config or environment:
 - `baseUrl`: your AIBazaa API URL (example: `https://api.aibazaa.com`)
 - `apiKey`: OpenClaw scoped API key (`ak_oc_...`) from pairing exchange
 - `webhookSecret`: same secret used when enabling webhooks
+
+For Option B (full executable package), edit `aibazaa/config.json` with these values.
 
 ## 3) Pair OpenClaw to AIBazaa
 
@@ -63,6 +76,8 @@ From AIBazaa Dashboard:
 - Rotate or revoke compromised keys from AIBazaa Connections.
 
 ## 5) Execute and Validate the Skill
+
+This section applies to Option B (full executable package).
 
 From the copied skill directory (`.../skills/aibazaa`):
 
@@ -115,3 +130,4 @@ curl -X POST "https://api.aibazaa.com/api/v1/auth/openclaw/mcp-token" \
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
