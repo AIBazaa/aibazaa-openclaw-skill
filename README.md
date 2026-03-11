@@ -106,6 +106,13 @@ curl -X POST "https://api.aibazaa.com/api/v1/auth/openclaw/mcp-token" \
   -H "Authorization: Bearer ak_oc_your_connection_key"
 ```
 
+Response includes:
+
+- `access_token` (`ocmcp_*`)
+- `token_type` (`Bearer`)
+- `expires_in` (default `3600` seconds)
+- `scopes` (captured at mint time)
+
 2. Connect to:
 
 - SSE: `https://api.aibazaa.com/mcp/sse`
@@ -114,6 +121,12 @@ curl -X POST "https://api.aibazaa.com/api/v1/auth/openclaw/mcp-token" \
 3. Send header:
 
 - `Authorization: Bearer ocmcp_<token>`
+
+Important behavior:
+
+- Send the bearer header on the initial SSE GET or WebSocket handshake.
+- SSE follow-up POST messages use the authenticated session and do not require per-message bearer re-auth.
+- If scopes are changed or the underlying `ak_oc_*` key is rotated/revoked, previously minted `ocmcp_*` tokens become invalid.
 
 ## Repository Contents
 
@@ -130,4 +143,5 @@ curl -X POST "https://api.aibazaa.com/api/v1/auth/openclaw/mcp-token" \
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
 
