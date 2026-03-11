@@ -126,7 +126,9 @@ Important behavior:
 
 - Send the bearer header on the initial SSE GET or WebSocket handshake.
 - SSE follow-up POST messages use the authenticated session and do not require per-message bearer re-auth.
-- If scopes are changed or the underlying `ak_oc_*` key is rotated/revoked, previously minted `ocmcp_*` tokens become invalid.
+- Keep token boundaries strict: `ak_oc_*` for `/api/v1/openclaw/...` and `/api/v1/auth/openclaw/...`, `ocmcp_*` for `/mcp/sse` and `/mcp/ws`.
+- If scopes are reduced/revoked or the underlying `ak_oc_*` key is rotated/revoked, previously minted `ocmcp_*` tokens can become invalid.
+- For multi-instance API deployments, use the same `OPENCLAW_MCP_SIGNING_KEY` on all nodes and keep retiring keys in `OPENCLAW_MCP_SIGNING_FALLBACK_KEYS` during rollout.
 
 ## Repository Contents
 
@@ -143,5 +145,6 @@ Important behavior:
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
 
 
