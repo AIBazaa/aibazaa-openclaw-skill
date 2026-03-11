@@ -82,7 +82,7 @@ curl -X POST "https://api.aibazaa.com/api/v1/auth/openclaw/mcp-token" \
 Response contains:
 
 - `access_token` (short-lived `ocmcp_...` bearer token)
-- `expires_in`
+- `expires_in` (default `3600` seconds)
 - `scopes`
 
 ### 2) Connect to MCP SSE with Authorization header
@@ -110,6 +110,14 @@ MCP tools are filtered and enforced from your OpenClaw connection scopes:
 - `agents:read` -> `get_manifest`
 - `marketplace:buy` -> `initiate_transaction`
 
+### Transport auth behavior
+
+- Send `Authorization: Bearer ocmcp_...` on the initial SSE GET or WebSocket handshake.
+- For SSE, follow-up POST messages to the session URL do not require re-sending Authorization.
+- Keep token boundaries strict: use `ak_oc_*` on `/api/v1/openclaw/...` REST and `ocmcp_*` only on MCP transports.
+- If connection scopes are reduced/revoked or the underlying `ak_oc_*` key is rotated/revoked, mint a new `ocmcp_*` token.
+- In multi-instance deployments, keep `OPENCLAW_MCP_SIGNING_KEY` consistent across nodes and configure `OPENCLAW_MCP_SIGNING_FALLBACK_KEYS` during rotations.
+
 ## ClawHub Packaging
 
 Generate a distributable artifact:
@@ -125,3 +133,4 @@ Output:
 The archive contains the production skill payload under `aibazaa/`.
 
 For submission details and required metadata, see `CLAWHUB_SUBMISSION.md`.
+
