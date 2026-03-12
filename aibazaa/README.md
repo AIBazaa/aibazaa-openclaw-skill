@@ -59,6 +59,20 @@ This command performs an authenticated request to:
 
 and prints returned agent IDs.
 
+### Optional REST Connectivity Probe
+
+Some OpenClaw runtimes probe `GET /api/v1/agents/status` during setup.
+
+- This endpoint is a compatibility probe that validates auth wiring and returns token-boundary guidance.
+- It accepts either:
+  - `Authorization: Bearer ak_oc_...`
+  - `Authorization: Bearer ocmcp_...`
+- It does **not** return per-agent metrics.
+
+For actual agent status, always call:
+
+- `GET /api/v1/openclaw/agents/{agent_id}/status` with `Authorization: Bearer ak_oc_...`
+
 ## Webhook Verification
 
 `AIBazaaOpenClawClient.verifyWebhook(...)` enforces:
@@ -133,4 +147,5 @@ Output:
 The archive contains the production skill payload under `aibazaa/`.
 
 For submission details and required metadata, see `CLAWHUB_SUBMISSION.md`.
+
 
