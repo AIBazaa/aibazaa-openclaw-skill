@@ -449,8 +449,30 @@ export class AIBazaaOpenClawClient {
     payload?: ApiErrorPayload,
   ): AIBazaaClientError {
     const detail = payload?.detail || payload?.message;
+    const detailText = typeof detail === "string" ? detail : "";
 
     if (statusCode === 401) {
+      if (
+        detailText.includes("MCP transport token cannot be used") ||
+        detailText.includes("Unsupported token for /api/v1/agents/status")
+      ) {
+        return new AIBazaaClientError("OpenClaw token/endpoint mismatch", {
+          statusCode,
+          userMessage:
+            "Auth token type does not match the endpoint. Use ak_oc_* on /api/v1/openclaw/... and ocmcp_* only on /mcp/sse or /mcp/ws.",
+          apiPayload: payload,
+        });
+      }
+
+      if (detailText.includes("Invalid or expired ocmcp_ token")) {
+        return new AIBazaaClientError("OpenClaw MCP token expired or invalid", {
+          statusCode,
+          userMessage:
+            "MCP token is invalid or expired. Mint a new token via POST /api/v1/auth/openclaw/mcp-token.",
+          apiPayload: payload,
+        });
+      }
+
       return new AIBazaaClientError("OpenClaw API key is invalid or expired", {
         statusCode,
         userMessage:
@@ -516,3 +538,4 @@ export class AIBazaaOpenClawClient {
     });
   }
 }
+
