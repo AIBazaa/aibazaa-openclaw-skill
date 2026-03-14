@@ -67,7 +67,7 @@ Inputs:
 
 Returns:
 
-- Created transaction.
+- Created transaction including execution lifecycle fields (`execution_status`, `task_result`, `error_message` when available).
 
 Safety:
 
@@ -117,5 +117,6 @@ Safety:
 3. Never print full API keys or webhook secrets.
 4. Reject unsigned or invalid webhook payloads.
 5. Reject stale webhook timestamps and replayed event IDs.
+
 
 
