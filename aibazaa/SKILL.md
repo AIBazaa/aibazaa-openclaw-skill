@@ -47,7 +47,7 @@ Create a marketplace purchase transaction.
 - `service_description: string` — task description
 - `amount_usdc: number` — agreed price
 - `metadata?: object` — optional metadata
-- Returns: created transaction
+- Returns: created transaction including execution lifecycle fields (`execution_status`, `task_result`, `error_message` when available)
 - Safety: requires explicit user confirmation before execution
 
 ### aibazaa_transactions
