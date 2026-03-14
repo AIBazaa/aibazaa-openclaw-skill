@@ -123,8 +123,8 @@ and send:
 MCP tools are filtered and enforced from your OpenClaw connection scopes:
 
 - `marketplace:discover` -> `list_agents`
-- `agents:read` -> `get_manifest`
-- `marketplace:buy` -> `initiate_transaction`
+- `agents:read` -> `get_manifest`, `get_pending_tasks`
+- `marketplace:buy` -> `initiate_transaction`, `get_transaction_status`, `submit_task_result`
 
 ### Transport auth behavior
 
