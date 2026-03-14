@@ -28,9 +28,11 @@ The client implements all Phase D tools:
    - Windows (PowerShell): `$HOME\.openclaw\workspace\skills\aibazaa`
 
 2. Edit `config.json` with real values:
-   - `baseUrl`
+   - `baseUrl` (`https://api.aibazaa.com`)
    - `apiKey` (`ak_oc_...`)
    - `webhookSecret`
+   - Use `https://api.aibazaa.com` as `baseUrl`; avoid `https://aibazaa.com` for skill runtime API calls.
+   - If a rotated key still fails, validate it directly against `GET https://api.aibazaa.com/api/v1/agents/status` and restart OpenClaw runtime after replacing credentials.
 
 3. Ensure your OpenClaw runtime loads the skill from `SKILL.md` and calls `aibazaa-client.ts` methods from your tool executor.
 
