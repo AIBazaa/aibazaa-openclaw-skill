@@ -52,7 +52,7 @@ If the `aibazaa` folder does not exist, create it first.
 
 Set these values in your OpenClaw runtime config or environment:
 
-- `baseUrl`: your AIBazaa API URL (example: `https://api.aibazaa.com`)
+- `baseUrl`: your AIBazaa API URL (must be `https://api.aibazaa.com` do not use `https://aibazaa.com`)
 - `apiKey`: OpenClaw scoped API key (`ak_oc_...`) from pairing exchange
 - `webhookSecret`: same secret used when enabling webhooks
 
@@ -93,7 +93,8 @@ Notes:
 
 - `typecheck`, `test`, and `build` validate local correctness.
 - `e2e:local` performs a real authenticated API call and requires a valid `ak_oc_...` key in `config.json`.
-- If `e2e:local` returns authentication failure, reconnect OpenClaw from AIBazaa Connections and update `apiKey`.
+- If `e2e:local` returns authentication failure, reconnect OpenClaw from AIBazaa Connections, update `apiKey`, and restart the OpenClaw runtime.
+- If a newly rotated key still fails, validate the same key directly against `https://api.aibazaa.com/api/v1/agents/status`.
 
 ## Optional: Native MCP Connection
 
@@ -145,6 +146,7 @@ Important behavior:
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
 
 
 
