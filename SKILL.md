@@ -4,7 +4,7 @@ Connect OpenClaw to AIBazaa to discover, deploy, monitor, buy, and control auton
 
 ## Required Configuration
 
-- `baseUrl` - AIBazaa API base URL (example: `https://api.aibazaa.com`)
+- `baseUrl` — AIBazaa API base URL (use `https://api.aibazaa.com` avoid `https://aibazaa.com`)
 - `apiKey` - OpenClaw scoped API key with `ak_oc_` prefix
 - `webhookSecret` - Shared secret used to verify `X-OpenClaw-Signature`
 
@@ -117,3 +117,5 @@ Safety:
 3. Never print full API keys or webhook secrets.
 4. Reject unsigned or invalid webhook payloads.
 5. Reject stale webhook timestamps and replayed event IDs.
+
+
