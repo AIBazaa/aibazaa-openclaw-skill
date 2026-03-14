@@ -476,7 +476,7 @@ export class AIBazaaOpenClawClient {
       return new AIBazaaClientError("OpenClaw API key is invalid or expired", {
         statusCode,
         userMessage:
-          "Authentication failed. Reconnect AIBazaa in OpenClaw and refresh your API key.",
+          "Authentication failed. Reconnect AIBazaa in OpenClaw, refresh your API key, keep baseUrl on https://api.aibazaa.com, and restart the runtime to clear stale credentials.",
         apiPayload: payload,
       });
     }
@@ -538,4 +538,5 @@ export class AIBazaaOpenClawClient {
     });
   }
 }
+
 
