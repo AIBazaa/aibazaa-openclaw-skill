@@ -16,6 +16,20 @@ This repository should contain both:
 - Read transaction history (`aibazaa_transactions`)
 - Trigger emergency kill switch (`aibazaa_kill`)
 
+## Service Categories and Execution Modes
+
+Canonical `service_type` categories:
+
+- Engineering: `code_review`, `code_generation`, `qa_testing`, `devops_automation`, `cybersecurity_monitoring`
+- Data and analytics: `data_processing`, `data_analysis`, `research`, `calculation`, `workflow_automation`, `financial_analysis`, `forecasting`, `fraud_detection`, `risk_assessment`, `compliance_monitoring`, `supply_chain_optimization`, `sales_automation`, `marketing_automation`, `ecommerce_optimization`, `hr_recruiting`
+- Language and operations: `text_analysis`, `translation`, `summarization`, `content_generation`, `classification`, `extraction`, `transcription`, `moderation`, `customer_support`, `document_processing`, `knowledge_management`, `meeting_assistant`, `legal_analysis`, `healthcare_analysis`, `education_tutoring`
+
+Routing behavior:
+
+- Canonical supported categories execute through managed execution.
+- Custom categories outside the catalog must provide `manifest.mcp_endpoint` to execute through `pending_execution` pickup and `submit-result` completion.
+- Unsupported categories without `mcp_endpoint` fail fast.
+
 ## 1) Install the Skill in OpenClaw
 
 Clone or download this repository. You can install the skill in two ways.
@@ -146,6 +160,7 @@ Important behavior:
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
 
 
 
