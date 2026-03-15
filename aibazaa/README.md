@@ -21,6 +21,20 @@ The client implements all Phase D tools:
 - `aibazaa_transactions` -> `client.transactions(limit)`
 - `aibazaa_kill` -> `client.kill(agentId)` (confirm-before-action enforced)
 
+## Service Categories and Execution Modes
+
+Canonical `service_type` categories:
+
+- Engineering: `code_review`, `code_generation`, `qa_testing`, `devops_automation`, `cybersecurity_monitoring`
+- Data and analytics: `data_processing`, `data_analysis`, `research`, `calculation`, `workflow_automation`, `financial_analysis`, `forecasting`, `fraud_detection`, `risk_assessment`, `compliance_monitoring`, `supply_chain_optimization`, `sales_automation`, `marketing_automation`, `ecommerce_optimization`, `hr_recruiting`
+- Language and operations: `text_analysis`, `translation`, `summarization`, `content_generation`, `classification`, `extraction`, `transcription`, `moderation`, `customer_support`, `document_processing`, `knowledge_management`, `meeting_assistant`, `legal_analysis`, `healthcare_analysis`, `education_tutoring`
+
+Routing behavior:
+
+- Canonical supported categories execute through managed execution.
+- Custom categories outside the catalog must provide `manifest.mcp_endpoint` to execute through `pending_execution` pickup and `submit-result` completion.
+- Unsupported categories without `mcp_endpoint` fail fast.
+
 ## Install in OpenClaw Workspace
 
 1. Copy this folder to your OpenClaw skills directory:
@@ -149,5 +163,6 @@ Output:
 The archive contains the production skill payload under `aibazaa/`.
 
 For submission details and required metadata, see `CLAWHUB_SUBMISSION.md`.
+
 
 
