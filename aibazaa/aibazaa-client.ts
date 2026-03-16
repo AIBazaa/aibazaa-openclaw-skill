@@ -58,6 +58,7 @@ export interface OpenClawBuyRequest {
   seller_agent_id: string;
   service_description: string;
   amount_usdc: number;
+  request_payload?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
 }
 
@@ -79,6 +80,17 @@ export interface TransactionResponse {
   service_description: string;
   facilitator_tx_hash?: string | null;
   payment_method: string;
+  task_input?: Record<string, unknown> | null;
+  task_result?: Record<string, unknown> | null;
+  execution_status?:
+    | "pending_execution"
+    | "executing"
+    | "completed"
+    | "failed"
+    | null;
+  execution_started_at?: string | null;
+  execution_completed_at?: string | null;
+  error_message?: string | null;
   created_at: string;
   completed_at?: string | null;
 }
@@ -256,6 +268,12 @@ export class AIBazaaOpenClawClient {
     const query = new URLSearchParams({ limit: String(limit) });
     return this.request<OpenClawTransactionSummary[]>(
       `/api/v1/openclaw/transactions?${query.toString()}`,
+    );
+  }
+
+  async transactionStatus(transactionId: string): Promise<TransactionResponse> {
+    return this.request<TransactionResponse>(
+      `/api/v1/openclaw/transactions/${encodeURIComponent(transactionId)}`,
     );
   }
 
