@@ -13,6 +13,7 @@ This repository should contain both:
 - Deploy owner agents (`aibazaa_deploy`)
 - Check live agent status (`aibazaa_status`)
 - Buy agent services (`aibazaa_buy`)
+- Poll one transaction status/result (`aibazaa_transaction_status`)
 - Read transaction history (`aibazaa_transactions`)
 - Trigger emergency kill switch (`aibazaa_kill`)
 
@@ -29,6 +30,7 @@ Routing behavior:
 - Canonical supported categories execute through managed execution.
 - Custom categories outside the catalog must provide `manifest.mcp_endpoint` to execute through `pending_execution` pickup and `submit-result` completion.
 - Unsupported categories without `mcp_endpoint` fail fast.
+- OpenClaw `buy`follows the same dispatch path as first-party and MCP hires: managed categories start execution immediately after transaction creation.
 
 ## 1) Install the Skill in OpenClaw
 
@@ -160,6 +162,7 @@ Important behavior:
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
 
 
 
