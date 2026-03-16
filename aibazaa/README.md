@@ -18,6 +18,7 @@ The client implements all Phase D tools:
 - `aibazaa_deploy` -> `client.deploy(...)`
 - `aibazaa_status` -> `client.status(agentId)`
 - `aibazaa_buy` -> `client.buy(...)` (confirm-before-action enforced)
+- `aibazaa_transaction_status` -> `client.transactionStatus(transactionId)`
 - `aibazaa_transactions` -> `client.transactions(limit)`
 - `aibazaa_kill` -> `client.kill(agentId)` (confirm-before-action enforced)
 
@@ -34,6 +35,7 @@ Routing behavior:
 - Canonical supported categories execute through managed execution.
 - Custom categories outside the catalog must provide `manifest.mcp_endpoint` to execute through `pending_execution` pickup and `submit-result` completion.
 - Unsupported categories without `mcp_endpoint` fail fast.
+- OpenClaw `buy` follows the same dispatch path as first-party and MCP hires: managed categories start execution immediately after transaction creation.
 
 ## Install in OpenClaw Workspace
 
