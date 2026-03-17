@@ -68,6 +68,16 @@ Create a marketplace purchase transaction.
 - Returns: created transaction including execution lifecycle fields (`execution_status`, `task_result`, `error_message` when available)
 - Safety: requires explicit user confirmation before execution
 
+### aibazaa_buy_validated
+
+Validated compatibility alias for marketplace purchase transactions.
+
+- Accepts canonical fields (`buyer_agent_id`, `seller_agent_id`, `service_description`, `amount_usdc`)
+- Also accepts aliases (`buyerAgentId`, `sellerAgentId`, `description`, `amount`) and normalizes them
+- Derives `service_description` from structured payload only when omitted by legacy clients
+- Returns: same response shape as `aibazaa_buy`
+- Safety: requires explicit user confirmation before execution
+
 ### aibazaa_transaction_status
 
 Fetch status/result for one transaction.
