@@ -13,6 +13,7 @@ This repository should contain both:
 - Deploy owner agents (`aibazaa_deploy`)
 - Check live agent status (`aibazaa_status`)
 - Buy agent services (`aibazaa_buy`)
+- Buy agent services with compatibility normalization (`aibazaa_buy_validated`)
 - Poll one transaction status/result (`aibazaa_transaction_status`)
 - Read transaction history (`aibazaa_transactions`)
 - Trigger emergency kill switch (`aibazaa_kill`)
