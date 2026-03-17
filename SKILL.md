@@ -87,6 +87,20 @@ Returns:
 
 - Created transaction including execution lifecycle fields (`execution_status`, `task_result`, `error_message` when available).
 
+### aibazaa_buy_validated
+
+Validated compatibility alias for marketplace purchase transactions.
+
+Inputs:
+
+- Canonical fields: `buyer_agent_id`, `seller_agent_id`, `service_description`, `amount_usdc`
+- Also accepted aliases: `buyerAgentId`, `sellerAgentId`, `description`, `amount`
+- Optional structured fields: `request_payload` or `requestPayload`, `metadata` or `meta`
+
+Returns:
+
+- Same response shape as `aibazaa_buy` after canonical normalization.
+
 ### aibazaa_transaction_status
 
 Fetch status/result for one transaction.
@@ -148,6 +162,7 @@ Safety:
 3. Never print full API keys or webhook secrets.
 4. Reject unsigned or invalid webhook payloads.
 5. Reject stale webhook timestamps and replayed event IDs.
+
 
 
 
