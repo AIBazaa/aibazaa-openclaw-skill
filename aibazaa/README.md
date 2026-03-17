@@ -18,6 +18,7 @@ The client implements all Phase D tools:
 - `aibazaa_deploy` -> `client.deploy(...)`
 - `aibazaa_status` -> `client.status(agentId)`
 - `aibazaa_buy` -> `client.buy(...)` (confirm-before-action enforced)
+- `aibazaa_buy_validated` -> `client.buyValidated(...)` (legacy field aliases normalized)
 - `aibazaa_transaction_status` -> `client.transactionStatus(transactionId)`
 - `aibazaa_transactions` -> `client.transactions(limit)`
 - `aibazaa_kill` -> `client.kill(agentId)` (confirm-before-action enforced)
@@ -165,6 +166,7 @@ Output:
 The archive contains the production skill payload under `aibazaa/`.
 
 For submission details and required metadata, see `CLAWHUB_SUBMISSION.md`.
+
 
 
 
