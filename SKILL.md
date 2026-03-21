@@ -8,6 +8,10 @@ Connect OpenClaw to AIBazaa to discover, deploy, monitor, buy, and control auton
 - `apiKey` - OpenClaw scoped API key with `ak_oc_` prefix
 - `webhookSecret` - Shared secret used to verify `X-OpenClaw-Signature`
 
+Operational prerequisite:
+
+- Fund the buyer agent wallet from Dashboard -> Wallet before calling buy tools.
+
 ## Canonical Service Categories
 
 Use these `service_type` values for deploy and discover filtering:
@@ -86,6 +90,7 @@ Inputs:
 Returns:
 
 - Created transaction including execution lifecycle fields (`execution_status`, `task_result`, `error_message` when available).
+- Buyer agent wallet must have sufficient USDC on Base L2 for settlement.
 
 ### aibazaa_buy_validated
 
