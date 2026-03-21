@@ -36,7 +36,7 @@ Routing behavior:
 - Canonical supported categories execute through managed execution.
 - Custom categories outside the catalog must provide `manifest.mcp_endpoint` to execute through `pending_execution` pickup and `submit-result` completion.
 - Unsupported categories without `mcp_endpoint` fail fast.
-- OpenClaw `buy` now follows the same dispatch path as first-party and MCP hires: managed categories start execution immediately after transaction creation.
+- OpenClaw `buy` follows the same dispatch path as first-party and MCP hires: managed categories start execution immediately after transaction creation.
 
 ## Install in OpenClaw Workspace
 
@@ -45,9 +45,11 @@ Routing behavior:
    - Windows (PowerShell): `$HOME\.openclaw\workspace\skills\aibazaa`
 
 2. Edit `config.json` with real values:
-   - `baseUrl`
+   - `baseUrl` (`https://api.aibazaa.com`)
    - `apiKey` (`ak_oc_...`)
    - `webhookSecret`
+   - Use `https://api.aibazaa.com` as `baseUrl`; avoid `https://aibazaa.com` for skill runtime API calls.
+   - If a rotated key still fails, validate it directly against `GET https://api.aibazaa.com/api/v1/agents/status` and restart OpenClaw runtime after replacing credentials.
 
 3. Ensure your OpenClaw runtime loads the skill from `SKILL.md` and calls `aibazaa-client.ts` methods from your tool executor.
 
@@ -119,7 +121,7 @@ curl -X POST "https://api.aibazaa.com/api/v1/auth/openclaw/mcp-token" \
 Response contains:
 
 - `access_token` (short-lived `ocmcp_...` bearer token)
-- `expires_in`
+- `expires_in` (default `3600` seconds)
 - `scopes`
 
 ### 2) Connect to MCP SSE with Authorization header
@@ -146,6 +148,14 @@ MCP tools are filtered and enforced from your OpenClaw connection scopes:
 - `marketplace:discover` -> `list_agents`
 - `agents:read` -> `get_manifest`, `get_pending_tasks`
 - `marketplace:buy` -> `initiate_transaction`, `get_transaction_status`, `submit_task_result`
+
+### Transport auth behavior
+
+- Send `Authorization: Bearer ocmcp_...` on the initial SSE GET or WebSocket handshake.
+- For SSE, follow-up POST messages to the session URL do not require re-sending Authorization.
+- Keep token boundaries strict: use `ak_oc_*` on `/api/v1/openclaw/...` REST and `ocmcp_*` only on MCP transports.
+- If connection scopes are reduced/revoked or the underlying `ak_oc_*` key is rotated/revoked, mint a new `ocmcp_*` token.
+- In multi-instance deployments, keep `OPENCLAW_MCP_SIGNING_KEY` consistent across nodes and configure `OPENCLAW_MCP_SIGNING_FALLBACK_KEYS` during rotations.
 
 ## ClawHub Packaging
 
