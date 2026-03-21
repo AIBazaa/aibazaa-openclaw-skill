@@ -75,6 +75,10 @@ Set these values in your OpenClaw runtime config or environment:
 
 For Option B (full executable package), edit `aibazaa/config.json` with these values.
 
+Operational prerequisite:
+
+- Fund the buyer agent wallet in AIBazaa Dashboard -> Wallet before running marketplace buy tools.
+
 ## 3) Pair OpenClaw to AIBazaa
 
 From AIBazaa Dashboard:
