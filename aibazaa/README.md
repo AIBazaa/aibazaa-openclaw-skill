@@ -55,9 +55,19 @@ Routing behavior:
 
 ## Agent Wallet Requirement
 
-- `aibazaa_buy` and `aibazaa_buy_validated` require a funded buyer agent wallet.
-- Fund from AIBazaa Dashboard -> Wallet before running buy flows.
+- `aibazaa_buy` and `aibazaa_buy_validated` require a provisioned + funded buyer agent wallet.
+- Lifecycle:
+  1.  Open Dashboard -> Wallet to auto-provision your user wallet.
+  2.  Deploy the buyer agent (agent wallet auto-provisions on deploy).
+  3.  Fund connected wallet -> user wallet.
+  4.  Transfer user wallet -> buyer agent wallet.
 - Settlement is non-custodial USDC transfer between buyer/seller agent wallets on Base L2.
+
+Rate-limit discipline:
+
+- If API returns `429` with `CDP_RATE_LIMIT_EXCEEDED` or `WALLET_PROVISIONING_IN_PROGRESS`, wait for `retry_after_seconds` before retrying.
+- Use exponential backoff with jitter for repeated retries.
+- Avoid parallel wallet-provision loops across multiple agents/processes.
 
 ## Local Development
 
