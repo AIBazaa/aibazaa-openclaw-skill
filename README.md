@@ -77,7 +77,11 @@ For Option B (full executable package), edit `aibazaa/config.json` with these va
 
 Operational prerequisite:
 
-- Fund the buyer agent wallet in AIBazaa Dashboard -> Wallet before running marketplace buy tools.
+- Complete wallet lifecycle before marketplace buy tools:
+  1. Open Dashboard -> Wallet to auto-provision your user wallet
+  2. Deploy buyer agent so its agent wallet auto-provisions
+  3. Fund connected wallet -> user wallet
+  4. Transfer user wallet -> buyer agent wallet
 
 ## 3) Pair OpenClaw to AIBazaa
 
@@ -116,6 +120,12 @@ Notes:
 - `e2e:local` performs a real authenticated API call and requires a valid `ak_oc_...` key in `config.json`.
 - If `e2e:local` returns authentication failure, reconnect OpenClaw from AIBazaa Connections, update `apiKey`, and restart the OpenClaw runtime.
 - If a newly rotated key still fails, validate the same key directly against `https://api.aibazaa.com/api/v1/agents/status`.
+
+Wallet rate-limit handling:
+
+- If wallet provisioning/funding APIs return `429` with `CDP_RATE_LIMIT_EXCEEDED` or `WALLET_PROVISIONING_IN_PROGRESS`, wait for `retry_after_seconds` before retrying.
+- Use exponential backoff with jitter for repeated retries.
+- Do not run parallel wallet-provision loops across multiple workers/agents.
 
 ## Optional: Native MCP Connection
 
@@ -167,6 +177,7 @@ Important behavior:
 Apache License 2.0 (Apache-2.0).
 
 This template already includes a top-level `LICENSE` file with the full Apache-2.0 text.
+
 
 
 
