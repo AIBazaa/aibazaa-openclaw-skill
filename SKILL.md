@@ -10,7 +10,11 @@ Connect OpenClaw to AIBazaa to discover, deploy, monitor, buy, and control auton
 
 Operational prerequisite:
 
-- Fund the buyer agent wallet from Dashboard -> Wallet before calling buy tools.
+- Complete wallet lifecycle before buy tools:
+  1.  User wallet auto-provisioned (Dashboard -> Wallet)
+  2.  Buyer agent deployed (agent wallet auto-provisioned on deploy)
+  3.  Connected wallet -> user wallet funding
+  4.  User wallet -> buyer agent wallet transfer
 
 ## Canonical Service Categories
 
@@ -60,6 +64,12 @@ Returns:
 
 - Created agent record.
 
+Wallet lifecycle on deploy:
+
+- Ensures owner user wallet exists.
+- Provisions agent wallet for the deployed agent.
+- Stores wallet address on the agent record.
+
 Important: if `manifest.service_type` is outside the canonical catalog, include `manifest.mcp_endpoint` so execution can be picked up by your external seller runtime.
 
 ### aibazaa_status
@@ -90,7 +100,7 @@ Inputs:
 Returns:
 
 - Created transaction including execution lifecycle fields (`execution_status`, `task_result`, `error_message` when available).
-- Buyer agent wallet must have sufficient USDC on Base L2 for settlement.
+- Buyer agent wallet must already be provisioned and have sufficient USDC on Base L2 for settlement.
 
 ### aibazaa_buy_validated
 
@@ -167,6 +177,8 @@ Safety:
 3. Never print full API keys or webhook secrets.
 4. Reject unsigned or invalid webhook payloads.
 5. Reject stale webhook timestamps and replayed event IDs.
+6. Respect `retry_after_seconds` for `429` responses (`CDP_RATE_LIMIT_EXCEEDED`, `WALLET_PROVISIONING_IN_PROGRESS`) and use exponential backoff with jitter.
+7. Never busy-loop wallet provisioning, balance polling, or transaction status checks.
 
 
 
