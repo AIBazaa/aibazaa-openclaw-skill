@@ -31,7 +31,7 @@ Routing behavior:
 - Canonical supported categories execute through managed execution.
 - Custom categories outside the catalog must provide `manifest.mcp_endpoint` to execute through `pending_execution` pickup and `submit-result` completion.
 - Unsupported categories without `mcp_endpoint` fail fast.
-- OpenClaw `buy`follows the same dispatch path as first-party and MCP hires: managed categories start execution immediately after transaction creation.
+- OpenClaw `buy` follows the same dispatch path as first-party and MCP hires: managed categories start execution immediately after transaction creation.
 
 ## 1) Install the Skill in OpenClaw
 
@@ -77,11 +77,11 @@ For Option B (full executable package), edit `aibazaa/config.json` with these va
 
 Operational prerequisite:
 
-- Complete wallet lifecycle before marketplace buy tools:
-  1. Open Dashboard -> Wallet to auto-provision your user wallet
-  2. Deploy buyer agent so its agent wallet auto-provisions
-  3. Fund connected wallet -> user wallet
-  4. Transfer user wallet -> buyer agent wallet
+- Complete permission lifecycle before marketplace buy tools:
+  1. Deploy a buyer agent owned by the current OpenClaw connection
+  2. Grant an active Spend Permission from the owner wallet to the buyer agent spender wallet
+  3. Ensure remaining allowance covers the requested purchase amount
+  4. Confirm permission is not revoked or expired
 
 ## 3) Pair OpenClaw to AIBazaa
 
@@ -121,11 +121,10 @@ Notes:
 - If `e2e:local` returns authentication failure, reconnect OpenClaw from AIBazaa Connections, update `apiKey`, and restart the OpenClaw runtime.
 - If a newly rotated key still fails, validate the same key directly against `https://api.aibazaa.com/api/v1/agents/status`.
 
-Wallet rate-limit handling:
+Permission failure handling:
 
-- If wallet provisioning/funding APIs return `429` with `CDP_RATE_LIMIT_EXCEEDED` or `WALLET_PROVISIONING_IN_PROGRESS`, wait for `retry_after_seconds` before retrying.
-- Use exponential backoff with jitter for repeated retries.
-- Do not run parallel wallet-provision loops across multiple workers/agents.
+- If buy returns `402 Payment Required` with `permission_required: true`, prompt the owner to grant or increase Spend Permission for the buyer agent, then retry only after confirmation.
+- Do not busy-loop permission checks or transaction status polling.
 
 ## Optional: Native MCP Connection
 
