@@ -39,7 +39,6 @@ export interface AgentResponse {
 export interface OpenClawAgentCreateRequest {
   manifest: AgentManifest;
   daily_budget_usdc: number;
-  initial_funding_usdc?: number;
   staked_amount_usdc?: number;
 }
 
@@ -61,6 +60,22 @@ export interface OpenClawBuyRequest {
   request_payload?: Record<string, unknown>;
   metadata?: Record<string, unknown>;
 }
+
+export interface OpenClawBuyLegacyRequest {
+  buyerAgentId?: string;
+  buyer_id?: string;
+  sellerAgentId?: string;
+  seller_id?: string;
+  description?: string;
+  task_description?: string;
+  amount?: number;
+  price_usdc?: number;
+  requestPayload?: Record<string, unknown>;
+  payload?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+}
+
+export type OpenClawBuyInput = OpenClawBuyRequest | OpenClawBuyLegacyRequest;
 
 export interface TransactionResponse {
   id: string;
@@ -251,17 +266,23 @@ export class AIBazaaOpenClawClient {
     );
   }
 
-  async buy(payload: OpenClawBuyRequest): Promise<TransactionResponse> {
+  async buy(payload: OpenClawBuyInput): Promise<TransactionResponse> {
+    const normalizedPayload = this.normalizeBuyPayload(payload);
+
     await this.requireConfirmation({
       action: "buy",
-      summary: `Buy service for ${payload.amount_usdc} USDC from ${payload.seller_agent_id} using ${payload.buyer_agent_id}`,
-      payload,
+      summary: `Buy service for ${normalizedPayload.amount_usdc} USDC from ${normalizedPayload.seller_agent_id} using ${normalizedPayload.buyer_agent_id}`,
+      payload: normalizedPayload,
     });
 
     return this.request<TransactionResponse>("/api/v1/openclaw/buy", {
       method: "POST",
-      body: JSON.stringify(payload),
+      body: JSON.stringify(normalizedPayload),
     });
+  }
+
+  async buyValidated(payload: OpenClawBuyInput): Promise<TransactionResponse> {
+    return this.buy(payload);
   }
 
   async transactions(limit = 20): Promise<OpenClawTransactionSummary[]> {
@@ -394,6 +415,103 @@ export class AIBazaaOpenClawClient {
         `${request.action} was cancelled by user confirmation policy`,
       );
     }
+  }
+
+  private normalizeBuyPayload(payload: OpenClawBuyInput): OpenClawBuyRequest {
+    const raw = payload as Record<string, unknown>;
+
+    const buyerAgentId = this.pickFirstString(
+      raw.buyer_agent_id,
+      raw.buyerAgentId,
+      raw.buyer_id,
+    );
+    const sellerAgentId = this.pickFirstString(
+      raw.seller_agent_id,
+      raw.sellerAgentId,
+      raw.seller_id,
+    );
+
+    const requestPayload = this.pickFirstObject(
+      raw.request_payload,
+      raw.requestPayload,
+      raw.payload,
+    );
+
+    let serviceDescription = this.pickFirstString(
+      raw.service_description,
+      raw.description,
+      raw.task_description,
+    );
+
+    if (!serviceDescription && requestPayload) {
+      serviceDescription = this.pickFirstString(
+        requestPayload.description,
+        requestPayload.task_description,
+        requestPayload.prompt,
+        requestPayload.notes,
+        requestPayload.text,
+        requestPayload.code,
+      );
+    }
+
+    const rawAmount =
+      (raw.amount_usdc as number | string | undefined) ??
+      (raw.amount as number | string | undefined) ??
+      (raw.price_usdc as number | string | undefined);
+
+    const amountUsdc =
+      typeof rawAmount === "number" ? rawAmount : Number(rawAmount);
+
+    if (!buyerAgentId) {
+      throw new AIBazaaClientError("buyer_agent_id is required", {
+        userMessage: "Buy request is missing buyer agent id.",
+      });
+    }
+    if (!sellerAgentId) {
+      throw new AIBazaaClientError("seller_agent_id is required", {
+        userMessage: "Buy request is missing seller agent id.",
+      });
+    }
+    if (!serviceDescription) {
+      throw new AIBazaaClientError("service_description is required", {
+        userMessage:
+          "Buy request is missing service description. Provide service_description or description.",
+      });
+    }
+    if (!Number.isFinite(amountUsdc) || amountUsdc <= 0) {
+      throw new AIBazaaClientError("amount_usdc must be a positive number", {
+        userMessage: "Buy request amount must be a positive USDC value.",
+      });
+    }
+
+    return {
+      buyer_agent_id: buyerAgentId,
+      seller_agent_id: sellerAgentId,
+      service_description: serviceDescription,
+      amount_usdc: amountUsdc,
+      request_payload: requestPayload,
+      metadata: this.pickFirstObject(raw.metadata, raw.meta),
+    };
+  }
+
+  private pickFirstString(...values: unknown[]): string | undefined {
+    for (const value of values) {
+      if (typeof value === "string" && value.trim().length > 0) {
+        return value.trim();
+      }
+    }
+    return undefined;
+  }
+
+  private pickFirstObject(
+    ...values: unknown[]
+  ): Record<string, unknown> | undefined {
+    for (const value of values) {
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        return value as Record<string, unknown>;
+      }
+    }
+    return undefined;
   }
 
   private async request<T>(
