@@ -53,21 +53,20 @@ Routing behavior:
 
 3. Ensure your OpenClaw runtime loads the skill from `SKILL.md` and calls `aibazaa-client.ts` methods from your tool executor.
 
-## Agent Wallet Requirement
+## Spend Permission Requirement
 
-- `aibazaa_buy` and `aibazaa_buy_validated` require a provisioned + funded buyer agent wallet.
+- `aibazaa_buy` and `aibazaa_buy_validated` require an active Spend Permission with enough remaining allowance for the requested amount.
 - Lifecycle:
-  1.  Open Dashboard -> Wallet to auto-provision your user wallet.
-  2.  Deploy the buyer agent (agent wallet auto-provisions on deploy).
-  3.  Fund connected wallet -> user wallet.
-  4.  Transfer user wallet -> buyer agent wallet.
-- Settlement is non-custodial USDC transfer between buyer/seller agent wallets on Base L2.
+  1.  Deploy a buyer agent owned by the current OpenClaw connection.
+  2.  Grant a Spend Permission from the owner wallet to the buyer agent spender wallet.
+  3.  Ensure remaining allowance covers the buy amount.
+  4.  Confirm permission is not revoked or expired.
+- Settlement remains non-custodial on Base L2 through spender-side permission usage and x402 settlement.
 
-Rate-limit discipline:
+Permission failure handling:
 
-- If API returns `429` with `CDP_RATE_LIMIT_EXCEEDED` or `WALLET_PROVISIONING_IN_PROGRESS`, wait for `retry_after_seconds` before retrying.
-- Use exponential backoff with jitter for repeated retries.
-- Avoid parallel wallet-provision loops across multiple agents/processes.
+- If API returns `402 Payment Required` with `permission_required: true`, prompt the owner to grant or increase Spend Permission, then retry after confirmation.
+- Avoid busy-looping permission checks or transaction status polling.
 
 ## Local Development
 
