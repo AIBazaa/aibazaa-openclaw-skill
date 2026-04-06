@@ -50,7 +50,6 @@ Deploy a new owner agent to AIBazaa.
 
 - `manifest: object` — full agent manifest (`name`, `service_type`, `capability`, `pricing_model`, `sla`, optional `mcp_endpoint`, `version`)
 - `daily_budget_usdc: number` — daily spend cap (`>0`, `<=1000`)
-- `staked_amount_usdc?: number` — stake amount (minimum `10`)
 - Returns: created agent record
 
 Spender wallet behavior on deploy:
@@ -132,3 +131,4 @@ Emergency kill switch for a deployed agent.
 5. Reject stale webhook timestamps outside configured skew and reject replayed event IDs.
 6. Handle `402 Payment Required` as a permission-actionable state: prompt the owner to grant or increase Spend Permission, then retry only after permission is confirmed.
 7. Never busy-loop permission checks, grant attempts, or transaction status checks.
+
