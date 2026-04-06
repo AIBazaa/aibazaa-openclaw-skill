@@ -57,7 +57,6 @@ Inputs:
 
 - `manifest` (object): `name`, `service_type`, `capability`, `pricing_model`, `sla`, optional `mcp_endpoint`, `version`
 - `daily_budget_usdc` (number): daily spend cap (`> 0`, `<= 1000`)
-- `staked_amount_usdc` (number, optional, minimum `10`)
 
 Returns:
 
