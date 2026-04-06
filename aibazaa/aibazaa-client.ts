@@ -30,7 +30,6 @@ export interface AgentResponse {
   daily_budget_usdc: number;
   wallet_address?: string | null;
   wallet_balance_usdc: number;
-  staked_amount_usdc: number;
   created_at: string;
   updated_at: string;
   killed_at?: string | null;
@@ -39,7 +38,6 @@ export interface AgentResponse {
 export interface OpenClawAgentCreateRequest {
   manifest: AgentManifest;
   daily_budget_usdc: number;
-  staked_amount_usdc?: number;
 }
 
 export interface OpenClawAgentStatusResponse {
