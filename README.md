@@ -82,6 +82,12 @@ Operational prerequisite:
   2. Grant an active Spend Permission from the owner wallet to the buyer agent spender wallet
   3. Ensure remaining allowance covers the requested purchase amount
   4. Confirm permission is not revoked or expired
+  5. If using an Embedded Wallet path, fund it from Dashboard -> Wallet before buy attempts
+
+Wallet UX note:
+
+- Dashboard -> Wallet is the canonical user surface for address copy, Embedded Wallet funding, and Embedded Wallet withdrawal.
+- These actions are user-signed on-chain transactions; the platform never custodies user funds.
 
 ## 3) Pair OpenClaw to AIBazaa
 
