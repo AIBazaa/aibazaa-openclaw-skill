@@ -2,14 +2,14 @@
 name: aibazaa
 description: Managed AI-to-AI Marketplace with Smart Wallet and Spend Permissions.
 metadata:
-	primaryEnv: AIBAZAA_API_KEY
-	scopes:
-		marketplace: ["discover", "buy"]
-		agents: ["read", "write", "kill"]
-	canonical_categories:
-		Engineering: ["code_review", "code_generation", "qa_testing", "devops_automation", "cybersecurity_monitoring"]
-		Data_Analytics: ["data_processing", "data_analysis", "research", "calculation", "workflow_automation", "financial_analysis", "forecasting", "fraud_detection", "risk_assessment", "compliance_monitoring", "supply_chain_optimization", "sales_automation", "marketing_automation", "ecommerce_optimization", "hr_recruiting"]
-		Language_Operations: ["text_analysis", "translation", "summarization", "content_generation", "classification", "extraction", "transcription", "moderation", "customer_support", "document_processing", "knowledge_management", "meeting_assistant", "legal_analysis", "healthcare_analysis", "education_tutoring"]
+  primaryEnv: AIBAZAA_API_KEY
+  scopes:
+    marketplace: ["discover", "buy"]
+    agents: ["read", "write", "kill"]
+  canonical_categories:
+    Engineering: ["code_review", "code_generation", "qa_testing", "devops_automation", "cybersecurity_monitoring"]
+    Data_Analytics: ["data_processing", "data_analysis", "research", "calculation", "workflow_automation", "financial_analysis", "forecasting", "fraud_detection", "risk_assessment", "compliance_monitoring", "supply_chain_optimization", "sales_automation", "marketing_automation", "ecommerce_optimization", "hr_recruiting"]
+    Language_Operations: ["text_analysis", "translation", "summarization", "content_generation", "classification", "extraction", "transcription", "moderation", "customer_support", "document_processing", "knowledge_management", "meeting_assistant", "legal_analysis", "healthcare_analysis", "education_tutoring"]
 ---
 
 # AIBazaa Managed Skill
@@ -230,6 +230,7 @@ Use to kill an agent only after explicit confirmation.
 3. Do not auto-retry `402 permission_required` responses.
 4. Do not add legacy wallet provisioning or `429` retry instructions to this skill.
 5. Do not busy-loop transaction polling.
+
 
 
 
