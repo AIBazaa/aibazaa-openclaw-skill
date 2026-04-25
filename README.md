@@ -7,16 +7,35 @@ This repository should contain both:
 - `SKILL.md` (tool contract and policy)
 - executable skill files (TypeScript client + scripts) used by OpenClaw runtime
 
-## What This Skill Enables
+## Write `SKILL.md` As Runtime Instructions
 
-- Discover marketplace agents (`aibazaa_discover`)
-- Deploy owner agents (`aibazaa_deploy`)
-- Check live agent status (`aibazaa_status`)
-- Buy agent services (`aibazaa_buy`)
-- Buy agent services with compatibility normalization (`aibazaa_buy_validated`)
-- Poll one transaction status/result (`aibazaa_transaction_status`)
-- Read transaction history (`aibazaa_transactions`)
-- Trigger emergency kill switch (`aibazaa_kill`)
+Treat `SKILL.md` as the runtime contract that OpenClaw follows directly. Do not write it like a reference page.
+
+Write every workflow in this structure:
+
+1. Name the step.
+2. Say `Call the tool ... with these arguments:`.
+3. List the exact argument keys to fill.
+4. Tell the runtime what to extract from the response.
+5. State the next step.
+6. If the workflow is blocked, say `Stop` and tell the runtime exactly what the user must do before retry.
+
+Use this pattern:
+
+1. `Step 1: Find the seller.`
+2. `Call the tool aibazaa_discover with these arguments:`
+3. `Extract the best result's agent_id and use it as seller_agent_id.`
+4. `Step 2: Execute the hire.`
+5. `Call the tool aibazaa_buy with these arguments:`
+6. `Step 3: Verify.`
+7. `Call the tool aibazaa_transactions with no arguments.`
+
+Avoid this pattern in `SKILL.md`:
+
+- long capability overviews before the first tool call
+- conceptual paragraphs that hide the next action
+- safety notes without explicit stop conditions
+- examples that describe a tool instead of telling the runtime to call it
 
 ## Service Categories and Execution Modes
 
@@ -77,17 +96,24 @@ For Option B (full executable package), edit `aibazaa/config.json` with these va
 
 Operational prerequisite:
 
-- Complete permission lifecycle before marketplace buy tools:
-  1. Deploy a buyer agent owned by the current OpenClaw connection
-  2. Grant an active Spend Permission from the owner wallet to the buyer agent spender wallet
-  3. Ensure remaining allowance covers the requested purchase amount
-  4. Confirm permission is not revoked or expired
-  5. If using an Embedded Wallet path, fund it from Dashboard -> Wallet before buy attempts
+- Before any marketplace buy, use this exact workflow:
+  1. Deploy or confirm the buyer agent.
+  2. Stop and tell the user that deploy alone does not authorize spending.
+  3. Send the user to Dashboard -> Wallet to grant Spend Permission for that buyer agent.
+  4. Confirm allowance, expiry, and wallet readiness before the first buy attempt.
+  5. For Smart Wallet paths, confirm USDC gas approval and enough USDC for service amount plus paymaster gas.
 
 Wallet UX note:
 
 - Dashboard -> Wallet is the canonical user surface for address copy, Embedded Wallet funding, and Embedded Wallet withdrawal.
 - These actions are user-signed on-chain transactions; the platform never custodies user funds.
+- AIBazaa does not subsidize user gas; Smart Wallet gas is paid in USDC via CDP ERC-20 Paymaster.
+
+Assistant runtime behavior:
+
+- After every successful `aibazaa_deploy`, tell the user whether the agent is seller-only or whether they also want it to buy/hire from the marketplace.
+- If the agent needs to buy or hire, require the Wallet permission step before calling any buy tool.
+- Treat `402 Payment Required` as a human-action step, not an automatic retry condition.
 
 ## 3) Pair OpenClaw to AIBazaa
 
@@ -129,7 +155,7 @@ Notes:
 
 Permission failure handling:
 
-- If buy returns `402 Payment Required` with `permission_required: true`, prompt the owner to grant or increase Spend Permission for the buyer agent, then retry only after confirmation.
+- If buy returns `402 Payment Required` with `permission_required: true`, explain that the buyer agent is blocked until the user completes Dashboard -> Wallet -> Grant Spend Permission (or increases allowance), then retry only after confirmation.
 - Do not busy-loop permission checks or transaction status polling.
 
 ## Optional: Native MCP Connection
