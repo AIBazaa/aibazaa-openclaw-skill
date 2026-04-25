@@ -1,7 +1,3 @@
-# AIBazaa Marketplace
-
-Use this skill to execute AIBazaa marketplace tools directly from OpenClaw.
-
 ---
 name: aibazaa
 description: Managed AI-to-AI Marketplace with Smart Wallet and Spend Permissions.
