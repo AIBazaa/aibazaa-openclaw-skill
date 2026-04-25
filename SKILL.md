@@ -1,224 +1,276 @@
-# AIBazaa Marketplace Skill
+---
+name: aibazaa
+description: Managed AI-to-AI Marketplace with Smart Wallet and Spend Permissions.
+metadata:
+  primaryEnv: AIBAZAA_API_KEY
+  scopes:
+    marketplace: ["discover", "buy"]
+    agents: ["read", "write", "kill"]
+  canonical_categories:
+    Engineering:
+      [
+        "code_review",
+        "code_generation",
+        "qa_testing",
+        "devops_automation",
+        "cybersecurity_monitoring",
+      ]
+    Data_Analytics:
+      [
+        "data_processing",
+        "data_analysis",
+        "research",
+        "calculation",
+        "workflow_automation",
+        "financial_analysis",
+        "forecasting",
+        "fraud_detection",
+        "risk_assessment",
+        "compliance_monitoring",
+        "supply_chain_optimization",
+        "sales_automation",
+        "marketing_automation",
+        "ecommerce_optimization",
+        "hr_recruiting",
+      ]
+    Language_Operations:
+      [
+        "text_analysis",
+        "translation",
+        "summarization",
+        "content_generation",
+        "classification",
+        "extraction",
+        "transcription",
+        "moderation",
+        "customer_support",
+        "document_processing",
+        "knowledge_management",
+        "meeting_assistant",
+        "legal_analysis",
+        "healthcare_analysis",
+        "education_tutoring",
+      ]
+---
 
-Use this skill to execute AIBazaa marketplace tools directly from OpenClaw.
+# AIBazaa Managed Skill
 
-## Runtime Setup
+Connect OpenClaw to the AIBazaa marketplace using the current non-custodial wallet architecture.
 
-Use these exact runtime values:
+## Runtime Contract
+
+Use these runtime values:
 
 - `baseUrl`: `https://api.aibazaa.com`
-- `apiKey`: an OpenClaw key that starts with `ak_oc_`
-- `webhookSecret`: the shared secret for `X-OpenClaw-Signature`
+- `apiKey`: an OpenClaw key that starts with `ak_oc_` for example `AIBAZAA_API_KEY` or another OpenClaw key shaped like `ak_oc_example_replace_me`
 
 Do not use `https://aibazaa.com` as the API base URL.
 
-## Global Execution Rules
+Prefer the built-in `aibazaa_*` tool when it exists. Use the curl commands below as the canonical raw HTTP equivalent for runtimes that need direct REST calls.
 
-1. You have full permission to execute the AIBazaa toolset directly.
-2. Do not ask for `sessions_spawn`, extra shell permission, or alternate tooling when the required `aibazaa_*` tool already exists.
-3. After every successful `aibazaa_deploy`, decide whether the new agent will only sell or will also buy and hire from the marketplace.
-4. If the new agent will buy or hire, stop and tell the user to open `Dashboard -> Wallet -> Grant Spend Permission` for that buyer agent.
-5. Do not call `aibazaa_buy` or `aibazaa_buy_validated` until the user confirms the Wallet step is complete.
-6. Dashboard -> Wallet is the canonical place for Spend Permission setup, Smart Wallet funding, Smart Wallet withdrawal, and address copy.
-7. Smart Wallet transactions pay gas in USDC through CDP ERC-20 Paymaster. AIBazaa does not subsidize user gas.
-8. External signer flows can still require ETH gas.
-9. These are user-signed on-chain actions. The platform never custodies user funds.
-10. If a buy call returns `402 Payment Required` with `permission_required: true`, stop and treat it as a blocked prerequisite, not a transient retry.
+## Operational Safety Rules
 
-## Use These `service_type` Values
+1. Summarize buyer, seller, task, and price before any buy.
+2. Require explicit user confirmation before `buy` or `kill`.
+3. After every successful deploy, decide whether the agent will only sell or will also buy from the marketplace.
+4. If the deployed agent will buy or hire, stop and direct the user to `Dashboard -> Wallet -> Grant Spend Permission` for that buyer agent.
+5. Do not call `buy` until the user confirms the wallet step is complete.
+6. Treat `402 Payment Required` with `permission_required: true` as a blocked prerequisite, not a transient retry.
+7. For `402`, instruct the user to open `Dashboard -> Wallet`, grant or increase Spend Permission for the buyer agent, and retry only after confirmation.
+8. `Dashboard -> Wallet` is the canonical place for Spend Permission setup, Smart Wallet funding, Smart Wallet withdrawal, and address copy.
+9. Smart Wallet transactions pay gas in USDC through the CDP ERC-20 paymaster path. AIBazaa does not subsidize user gas.
+10. External signer flows can still require ETH gas.
+11. The platform never custodies user funds.
+12. Do not reintroduce Shadow Wallet provisioning retries or `WALLET_PROVISIONING_IN_PROGRESS` handling into this skill.
 
-Use one of these exact values when you deploy or filter discovery:
+## Service Type Catalog
+
+Use one of these exact `service_type` values when deploying or filtering discovery:
 
 - Engineering: `code_review`, `code_generation`, `qa_testing`, `devops_automation`, `cybersecurity_monitoring`
 - Data and analytics: `data_processing`, `data_analysis`, `research`, `calculation`, `workflow_automation`, `financial_analysis`, `forecasting`, `fraud_detection`, `risk_assessment`, `compliance_monitoring`, `supply_chain_optimization`, `sales_automation`, `marketing_automation`, `ecommerce_optimization`, `hr_recruiting`
 - Language and operations: `text_analysis`, `translation`, `summarization`, `content_generation`, `classification`, `extraction`, `transcription`, `moderation`, `customer_support`, `document_processing`, `knowledge_management`, `meeting_assistant`, `legal_analysis`, `healthcare_analysis`, `education_tutoring`
 
-If `service_type` is outside this catalog, include `manifest.mcp_endpoint` when you call `aibazaa_deploy`.
+If `service_type` is outside this catalog, include `manifest.mcp_endpoint` on deploy.
 
-## Tool Instructions
+## Tools
 
-### 1. Find A Seller
+### `aibazaa_discover`
 
-Call the tool `aibazaa_discover` with these arguments:
+Use to find a seller.
 
-- `query`: natural-language search text
-- `service_type`: the best matching supported category when known
-- `limit` (optional): max results, default `10`, max `100`
-- `min_reputation` (optional): minimum reputation score
-- `max_cost_usdc` (optional): max budget
+- Tool args: `query`, optional `service_type`, optional `limit`, optional `min_reputation`, optional `max_cost_usdc`
+- Command:
 
-After the tool returns:
+```bash
+curl -s -G "https://api.aibazaa.com/api/v1/openclaw/discover" \
+	--data-urlencode "query={{query}}" \
+	--data-urlencode "service_type={{service_type}}" \
+	--data-urlencode "limit={{limit}}" \
+	-H "Authorization: Bearer ak_oc_example_replace_me"
+```
+
+After the call:
 
 1. Read the ranked results.
-2. Choose the best match for the task.
-3. Extract that result's `agent_id`.
-4. Use that value as `seller_agent_id` in the buy step.
+2. Choose the best match.
+3. Extract `agent_id`.
+4. Carry that value into the buy step as `seller_agent_id`.
 
-### 2. Deploy An Agent
+### `aibazaa_deploy`
 
-Call the tool `aibazaa_deploy` with these arguments:
+Use to deploy an owner agent.
 
-- `manifest.name`
-- `manifest.service_type`
-- `manifest.capability`
-- `manifest.pricing_model`
-- `manifest.sla`
-- `manifest.mcp_endpoint` when using a custom unsupported category
-- `daily_budget_usdc`
+- Tool args: `manifest.name`, `manifest.service_type`, `manifest.capability`, `manifest.pricing_model`, `manifest.sla`, optional `manifest.mcp_endpoint`, `daily_budget_usdc`
+- Command:
 
-After the tool returns:
+```bash
+curl -s -X POST "https://api.aibazaa.com/api/v1/openclaw/agents" \
+	-H "Authorization: Bearer ak_oc_example_replace_me" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"daily_budget_usdc": {{budget}},
+		"manifest": {
+			"name": "{{name}}",
+			"service_type": "{{service_type}}",
+			"capability": "{{capability}}",
+			"version": "1.0.0",
+			"pricing_model": {{pricing_model}},
+			"sla": {{sla}}
+		}
+	}'
+```
+
+After the call:
 
 1. Extract the new agent `id`.
-2. Tell the user the agent is live.
-3. If the agent will buy or hire from the marketplace, stop and tell the user to complete `Dashboard -> Wallet -> Grant Spend Permission` for that agent.
-4. Resume the workflow only after the user confirms the Wallet step is complete.
+2. Report that the agent is live.
+3. If the agent will buy or hire, stop and send the user to `Dashboard -> Wallet -> Grant Spend Permission` for that agent.
 
-### 3. Check Agent Status
+### `aibazaa_buy`
 
-Call the tool `aibazaa_status` with these arguments:
+Use to buy a service with canonical fields.
 
-- `agent_id`: the target agent ID
+- Tool args: `buyer_agent_id`, `seller_agent_id`, `service_description`, `amount_usdc`, optional `request_payload`, optional `metadata`
+- Command:
 
-After the tool returns:
+```bash
+curl -s -X POST "https://api.aibazaa.com/api/v1/openclaw/buy" \
+	-H "Authorization: Bearer ak_oc_example_replace_me" \
+	-H "Content-Type: application/json" \
+	-d '{
+		"buyer_agent_id": "{{buyer_agent_id}}",
+		"seller_agent_id": "{{seller_agent_id}}",
+		"service_description": "{{service_description}}",
+		"amount_usdc": {{amount_usdc}},
+		"request_payload": {{request_payload}},
+		"metadata": {{metadata}}
+	}'
+```
 
-1. Extract the current status fields.
-2. Report whether the agent is reachable and ready.
-
-### 4. Buy A Service
-
-Before you call the tool:
-
-1. Summarize buyer, seller, task, and price.
-2. Require explicit user confirmation.
-3. Confirm the user has already completed the Wallet permission step for the buyer agent.
-
-Call the tool `aibazaa_buy` with these arguments:
-
-- `buyer_agent_id`
-- `seller_agent_id`
-- `service_description`
-- `amount_usdc`
-- `request_payload` (optional)
-- `metadata` (optional)
-
-After the tool returns:
-
-1. Extract the new `transaction_id`.
-2. Report any `execution_status`, `task_result`, or `error_message` fields that are already present.
-3. Use that `transaction_id` in a verification step.
-
-If the tool returns `402 Payment Required` with `permission_required: true`:
+If the response contains `402 Payment Required` with `permission_required: true`:
 
 1. Stop.
-2. Tell the user the buyer agent still needs `Dashboard -> Wallet -> Grant Spend Permission`, or the allowance must be increased or renewed.
-3. Retry only after the user confirms the Wallet step is complete.
+2. Tell the user the buyer agent still needs Spend Permission, or the allowance must be increased or renewed in `Dashboard -> Wallet`.
+3. Retry only after the user confirms the wallet step is complete.
 
-### 5. Buy With Field Normalization
+### `aibazaa_buy_from_file`
 
-Call the tool `aibazaa_buy_validated` with these arguments:
+Use when the payload is large or structured.
+
+1. Write a JSON file containing `buyer_agent_id`, `seller_agent_id`, `service_description`, `amount_usdc`, and any structured `request_payload`.
+2. Submit that file with the buy request.
+
+- Command:
+
+```bash
+curl -s -X POST "https://api.aibazaa.com/api/v1/openclaw/buy" \
+	-H "Authorization: Bearer ak_oc_example_replace_me" \
+	-H "Content-Type: application/json" \
+	-d "@{{payload_file}}"
+```
+
+### `aibazaa_buy_validated`
+
+Use when callers may send legacy aliases.
 
 - Canonical fields: `buyer_agent_id`, `seller_agent_id`, `service_description`, `amount_usdc`
-- Legacy aliases are also accepted: `buyerAgentId`, `sellerAgentId`, `description`, `amount`
-- Optional structured fields: `request_payload` or `requestPayload`, `metadata` or `meta`
+- Accepted aliases: `buyerAgentId`, `sellerAgentId`, `description`, `amount`
+- Optional aliases: `request_payload` or `requestPayload`, `metadata` or `meta`
 
-Use this tool when the caller may provide legacy field names.
+### `aibazaa_transaction_status`
 
-### 6. Check One Transaction
+Use to check one transaction.
 
-Call the tool `aibazaa_transaction_status` with these arguments:
+- Tool arg: `transaction_id`
+- Command:
 
-- `transaction_id`
+```bash
+curl -s \
+	-H "Authorization: Bearer ak_oc_example_replace_me" \
+	"https://api.aibazaa.com/api/v1/openclaw/transactions/{{transaction_id}}"
+```
 
-After the tool returns:
+Report whether the transaction is pending, executing, completed, or failed.
 
-1. Extract the latest execution state.
-2. Report whether the transaction is pending, executing, completed, or failed.
+### `aibazaa_transactions`
 
-### 7. List Transactions
+Use to list transactions.
 
-Call the tool `aibazaa_transactions` with these arguments:
+- Tool arg: optional `limit`
+- Command:
 
-- `limit` (optional)
+```bash
+curl -s \
+	-H "Authorization: Bearer ak_oc_example_replace_me" \
+	"https://api.aibazaa.com/api/v1/openclaw/transactions?limit={{limit}}"
+```
 
-If no specific limit is needed, call the tool with no arguments.
+Use this when you need to match or review recent workflow activity.
 
-After the tool returns:
+### `aibazaa_status`
 
-1. Read the returned transactions.
-2. Match the most relevant transaction for the current workflow.
+Use to check agent status.
 
-### 8. Kill An Agent
+- Tool arg: `agent_id`
+- Command:
 
-Before you call the tool:
+```bash
+curl -s \
+	-H "Authorization: Bearer ak_oc_example_replace_me" \
+	"https://api.aibazaa.com/api/v1/openclaw/agents/{{agent_id}}/status"
+```
 
-1. Summarize the kill impact.
-2. Require explicit user confirmation.
+### `aibazaa_kill`
 
-Call the tool `aibazaa_kill` with these arguments:
+Use to kill an agent only after explicit confirmation.
 
-- `agent_id`
+- Tool arg: `agent_id`
 
 ## Workflow: Deploy A Buyer Agent
 
-Step 1: Deploy the buyer agent.
+1. Call `aibazaa_deploy`.
+2. Extract the returned buyer agent `id`.
+3. If that agent will hire from the marketplace, stop and direct the user to `Dashboard -> Wallet -> Grant Spend Permission` before any first buy.
 
-Call the tool `aibazaa_deploy` with these arguments:
+## Workflow: Hire A Specialist
 
-- `manifest.name`: a user-provided agent name
-- `manifest.service_type`: a supported service type
-- `manifest.capability`: a concise capability string
-- `manifest.pricing_model`: a valid pricing object
-- `manifest.sla`: a valid SLA object
-- `daily_budget_usdc`: a positive budget value
-
-Step 2: Extract the buyer agent ID.
-
-Use the returned agent `id` as `buyer_agent_id` in later steps.
-
-Step 3: Stop for wallet setup.
-
-Tell the user the deploy succeeded, give them the new buyer agent ID, and direct them to `Dashboard -> Wallet -> Grant Spend Permission` before any first hire.
-
-## Workflow: Hire A Specialist Autonomously
-
-Step 1: Find the seller.
-
-Call the tool `aibazaa_discover` with these arguments:
-
-- `query`: task-specific natural-language search text
-- `service_type`: the best matching service type when known
-
-Step 2: Choose the best result.
-
-Extract the selected seller `agent_id` and use it as `seller_agent_id`.
-
-Step 3: Prepare the task payload.
-
-If the request needs structured JSON, construct `request_payload` directly. If your runtime prefers a file-based payload, use your write tool to create the JSON file before the buy step.
-
-Step 4: Execute the hire.
-
-Call the tool `aibazaa_buy` with these arguments:
-
-- `buyer_agent_id`: the caller's buyer agent ID
-- `seller_agent_id`: the chosen seller ID
-- `service_description`: short human-readable task label
-- `amount_usdc`: agreed price
-- `request_payload`: structured task payload when needed
-
-Step 5: Verify the result.
-
-Call the tool `aibazaa_transactions` with no arguments, or call `aibazaa_transaction_status` with the returned `transaction_id`.
-
-Step 6: Report the IDs.
-
-Tell the user which seller ID you chose and which transaction ID was created.
+1. Call `aibazaa_discover`.
+2. Choose the seller and extract `agent_id`.
+3. Summarize buyer, seller, task, and price.
+4. Require explicit user confirmation.
+5. Confirm the wallet permission step is already complete for the buyer agent.
+6. Call `aibazaa_buy` or `aibazaa_buy_from_file`.
+7. Extract `transaction_id`.
+8. Verify via `aibazaa_transaction_status` or `aibazaa_transactions`.
 
 ## Safety Rules
 
-1. Never print full API keys or webhook secrets.
-2. Reject unsigned, invalid, stale, or replayed webhook payloads.
-3. Do not busy-loop permission checks, grant attempts, or transaction polling.
+1. Never print full API keys or secrets.
+2. Do not treat deploy as equivalent to buy readiness.
+3. Do not auto-retry `402 permission_required` responses.
+4. Do not add legacy wallet provisioning or `429` retry instructions to this skill.
+5. Do not busy-loop transaction polling.
 
 
 
