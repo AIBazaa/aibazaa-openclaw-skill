@@ -10,6 +10,31 @@ Production-ready OpenClaw skill package for managing AIBazaa agents from chat.
 - `scripts/e2e-local.ts` — real connectivity check against AIBazaa API
 - `scripts/package-skill.ts` — ClawHub package artifact generator
 
+## Write `SKILL.md` In Command-First Format
+
+This package is meant to drive an agent runtime, not just document the product for a human reader.
+
+Write runtime instructions in this exact structure:
+
+1. Name the step.
+2. Say `Call the tool ... with these arguments:`.
+3. List the exact arguments to pass.
+4. State what value to extract from the response.
+5. State the next step.
+6. If the workflow is blocked, say `Stop` and tell the runtime exactly what the user must do before retry.
+
+Good pattern:
+
+1. `Step 1: Find the seller.`
+2. `Call the tool aibazaa_discover with these arguments:`
+3. `Extract the selected agent_id and store it as seller_agent_id.`
+4. `Step 2: Buy the service.`
+5. `Call the tool aibazaa_buy with these arguments:`
+6. `Step 3: Verify the result.`
+7. `Call the tool aibazaa_transactions with no arguments.`
+
+Do not write `SKILL.md` like a reference doc with long narrative sections before the first tool call.
+
 ## Tool Coverage
 
 The client implements all Phase D tools:
@@ -56,13 +81,22 @@ Routing behavior:
 ## Spend Permission Requirement
 
 - `aibazaa_buy` and `aibazaa_buy_validated` require an active Spend Permission with enough remaining allowance for the requested amount.
+- Smart Wallet transactions pay gas in USDC via CDP ERC-20 Paymaster (no ETH required on Smart Wallet signer paths).
 - Lifecycle:
-  1.  Deploy a buyer agent owned by the current OpenClaw connection.
-  2.  Grant a Spend Permission from the owner wallet to the buyer agent spender wallet.
-  3.  Ensure remaining allowance covers the buy amount.
-  4.  Confirm permission is not revoked or expired.
-  5.  If using an Embedded Wallet path, fund it from Dashboard -> Wallet before buy attempts.
+  1.  Deploy or confirm a buyer agent owned by the current OpenClaw connection.
+  2.  Stop and tell the user that deploy alone does not authorize spending.
+  3.  Open Dashboard -> Wallet and grant Spend Permission to the buyer agent spender wallet.
+  4.  Ensure remaining allowance covers the buy amount.
+  5.  Confirm permission is not revoked or expired.
+  6.  Ensure owner wallet has enough USDC for service amount and paymaster gas deduction.
+  7.  If paymaster allowance is low, approve USDC gas allowance from Dashboard -> Wallet.
 - Settlement remains non-custodial on Base L2 through spender-side permission usage and x402 settlement.
+
+Assistant runtime rule:
+
+- After every successful `aibazaa_deploy`, explicitly ask whether the new agent needs to hire or buy from the marketplace.
+- If yes, direct the user to Dashboard -> Wallet before any first buy attempt.
+- Do not present deploy as the last step for buy-capable agents.
 
 Wallet UX note:
 
@@ -71,7 +105,7 @@ Wallet UX note:
 
 Permission failure handling:
 
-- If API returns `402 Payment Required` with `permission_required: true`, prompt the owner to grant or increase Spend Permission, then retry after confirmation.
+- If API returns `402 Payment Required` with `permission_required: true`, explain that the buyer agent is blocked until the user completes Dashboard -> Wallet -> Grant Spend Permission or increases allowance, then retry after confirmation.
 - Avoid busy-looping permission checks or transaction status polling.
 
 ## Local Development
@@ -187,6 +221,7 @@ Output:
 The archive contains the production skill payload under `aibazaa/`.
 
 For submission details and required metadata, see `CLAWHUB_SUBMISSION.md`.
+
 
 
 
